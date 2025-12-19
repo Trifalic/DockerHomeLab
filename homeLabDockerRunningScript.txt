@@ -1,0 +1,33 @@
+docker network create --subnet 172.18.0.0/16 lab_net
+docker network ls
+
+docker pull ubuntu:22.04
+docker run -itd \
+  --name target_ubuntu \
+  --network lab_net \
+  ubuntu:22.04
+docker exec -it target_ubuntu bash
+apt update
+apt install -y openssh-server apache2 net-tools iputils-ping
+service ssh start
+service apache2 start
+ip a
+
+docker pull kalilinux/kali-rolling
+docker run -it \
+  --name attacker_kali \
+  --network lab_net \
+  kalilinux/kali-rolling bash
+apt update
+apt install -y nmap netcat hydra metasploit-framework iputils-ping
+ping target_ubuntu
+nmap -sV target_ubuntu
+
+
+#To make ubuntu more vulnerable
+
+apt install -y vsftpd
+service vsftpd start
+useradd demon
+echo "demon:demon123" | chpasswd
+
